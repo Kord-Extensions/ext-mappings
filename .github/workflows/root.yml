@@ -33,7 +33,7 @@ jobs:
 
       - name: Gradle (Publish)
         run: |
-          if [ $(sh gradlew printVersion -q | grep -q "SNAPSHOT") ]; then
+          if [[ $(sh gradlew printVersion) != *"SNAPSHOT"* ]]; then
             echo "Skipping: Not a snapshot version"
           else
             sh gradlew -Pkotdis.user=${{ secrets.MAVEN_USER }} -Pkotdis.password=${{ secrets.MAVEN_PASSWORD }} publish
