@@ -18,6 +18,7 @@ val moduleVersion: String by project
 val detektVersion: String by project
 val kordExVersion: String by project
 val kotlinVersion: String by project
+val linkieVersion: String by project
 
 plugins {
     `maven-publish`
@@ -34,10 +35,27 @@ repositories {
         url = uri("https://maven.kotlindiscord.com/repository/maven-public/")
     }
 
-    // You can add more repositories below this line if needed.
+    maven {
+        name = "FabricMC"
+        url = uri("https://maven.fabricmc.net/")
+    }
+
+    maven {
+        name = "Bintray (Linkie)"
+        url = uri("https://dl.bintray.com/shedaniel/linkie")
+    }
+
+    maven {
+        name = "JitPack"
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
+    // Linkie
+
+    api("me.shedaniel:linkie-core:$linkieVersion")
+
     // Linting
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 

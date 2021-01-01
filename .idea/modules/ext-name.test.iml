@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.system.module.type="sourceSet" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$/../../build/classes/java/main" />
+    <output-test url="file://$MODULE_DIR$/../../build/classes/java/test" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../src/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../src/main/kotlin" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../../src/main/resources" type="java-resource" />
-    </content>
+    <content url="file://$MODULE_DIR$/../../src/test" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="ext-name.main" />
     <orderEntry type="library" name="Gradle: com.uchuhimo:konf:0.23.0" level="project" />
     <orderEntry type="library" name="Gradle: com.uchuhimo:konf-toml:0.23.0" level="project" />
     <orderEntry type="library" name="Gradle: com.kotlindiscord.kord.extensions:kord-extensions:1.4.0-RC5" level="project" />
@@ -81,4 +79,5 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: xpp3:xpp3:1.1.4c" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: relaxngDatatype:relaxngDatatype:20020414" level="project" />
   </component>
+  <component name="TestModuleProperties" production-module="ext-name.main" />
 </module>
