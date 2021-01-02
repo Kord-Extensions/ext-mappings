@@ -34,6 +34,7 @@ private const val VERSION_CHUNK_SIZE = 10
 private const val PAGE_FOOTER = "Powered by Linkie"
 private const val PAGE_FOOTER_ICON =
     "https://cdn.discordapp.com/attachments/789139884307775580/790887070334976020/linkie_arrow.png"
+private const val TIMEOUT_MULTIPLIER = 1000L  // To transform it into seconds
 
 /**
  * Extension providing Minecraft mappings lookups on Discord.
@@ -851,8 +852,8 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
         paginator.send()
     }
-    
-    private suspend fun getTimeout() = config.getTimeout() * 1000L
+
+    private suspend fun getTimeout() = config.getTimeout() * TIMEOUT_MULTIPLIER
 
     private suspend fun customChecks(command: String): suspend (MessageCreateEvent) -> Boolean {
         val allChecks = checks.map { it.invoke(command) }
