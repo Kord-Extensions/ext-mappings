@@ -72,6 +72,7 @@ following configuration keys are available:
   run within the given guilds.
 * `settings.namespaces`: List of enabled namespaces. Currently, only `mcp`, `mojang` and `yarn` are supported, and
   they will all be enabled by default.
+* `settings.timeout`: Time (in seconds) to wait before destroying mappings paginators, defaulting to 5 minutes (300 seconds). Be careful when setting this value to something high - a busy bot may end up running out of memory if paginators aren't destroyed quickly enough. This setting only accepts whole numbers.
 
 **Please note:** Mappings commands will always function when sent to the bot via a private message. However, only the
 configured namespaces will be available - the user will not be able to query disabled namespaces.

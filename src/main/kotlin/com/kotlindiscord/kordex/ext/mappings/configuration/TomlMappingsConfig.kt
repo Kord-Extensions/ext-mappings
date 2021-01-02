@@ -51,4 +51,5 @@ class TomlMappingsConfig : MappingsConfigAdapter {
     override suspend fun getBannedGuilds(): List<Snowflake> = config[GuildsSpec.banned]
 
     override suspend fun getEnabledNamespaces(): List<String> = config[SettingsSpec.namespaces]
+    override suspend fun getTimeout(): Long = config[SettingsSpec.timeout]
 }

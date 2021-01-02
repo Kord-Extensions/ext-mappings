@@ -5,4 +5,5 @@ import com.uchuhimo.konf.ConfigSpec
 /** @suppress **/
 object SettingsSpec : ConfigSpec() {
     val namespaces by required<List<String>>()
+    val timeout by optional(300L)
 }

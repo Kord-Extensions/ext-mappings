@@ -393,7 +393,8 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
                         targetMessage = message,
                         pages = pagesObj,
                         owner = message.author,
-                        keepEmbed = true
+                        keepEmbed = true,
+                        timeout = getTimeout()
                     )
 
                     paginator.send()
@@ -457,7 +458,8 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
                         targetMessage = message,
                         pages = pagesObj,
                         owner = message.author,
-                        keepEmbed = true
+                        keepEmbed = true,
+                        timeout = getTimeout()
                     )
 
                     paginator.send()
@@ -530,7 +532,8 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
                         targetMessage = message,
                         pages = pagesObj,
                         owner = message.author,
-                        keepEmbed = true
+                        keepEmbed = true,
+                        timeout = getTimeout()
                     )
 
                     paginator.send()
@@ -638,7 +641,8 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
             targetMessage = message,
             pages = pagesObj,
             owner = message.author,
-            keepEmbed = true
+            keepEmbed = true,
+            timeout = getTimeout()
         )
 
         paginator.send()
@@ -739,7 +743,8 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
             targetMessage = message,
             pages = pagesObj,
             owner = message.author,
-            keepEmbed = true
+            keepEmbed = true,
+            timeout = getTimeout()
         )
 
         paginator.send()
@@ -840,11 +845,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
             targetMessage = message,
             pages = pagesObj,
             owner = message.author,
-            keepEmbed = true
+            keepEmbed = true,
+            timeout = getTimeout()
         )
 
         paginator.send()
     }
+    
+    private suspend fun getTimeout() = config.getTimeout() * 1000L
 
     private suspend fun customChecks(command: String): suspend (MessageCreateEvent) -> Boolean {
         val allChecks = checks.map { it.invoke(command) }

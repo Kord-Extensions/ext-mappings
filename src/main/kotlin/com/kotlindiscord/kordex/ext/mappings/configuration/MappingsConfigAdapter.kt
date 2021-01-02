@@ -27,4 +27,7 @@ interface MappingsConfigAdapter {
 
     /** Get a list of enabled mappings namespaces. **/
     suspend fun getEnabledNamespaces(): List<String>
+
+    /** Get the paginator timeout, in seconds **/
+    suspend fun getTimeout(): Long
 }

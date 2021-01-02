@@ -22,3 +22,5 @@ banned = []
 [settings]
 # Which namespaces to allow lookups for - only "mcp", "mojang" and "yarn" are currently supported.
 namespaces = ["mcp", "mojang", "yarn"]
+
+# How long to wait before closing mappings paginators (in seconds), defaults to 5 minutes
