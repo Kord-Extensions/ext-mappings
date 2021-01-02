@@ -101,3 +101,5 @@ if (webhookCode >= 400) {
 
     exitProcess(1)
 }
+
+exitProcess(0)

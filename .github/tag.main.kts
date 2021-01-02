@@ -3,6 +3,7 @@
 
 import com.lordcodes.turtle.shellRun
 import java.io.File
+import kotlin.system.exitProcess
 
 //val webhookUrl = System.getenv("WEBHOOK_URL")
 val repo = System.getenv("GITHUB_REPOSITORY")
@@ -73,3 +74,5 @@ file.writeText(
 )
 
 print("File written: release.md")
+
+exitProcess(0)
