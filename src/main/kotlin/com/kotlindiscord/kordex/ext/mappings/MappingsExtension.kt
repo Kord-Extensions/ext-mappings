@@ -366,6 +366,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                     if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
                         message.respond("Patchwork support is currently disabled.")
+                        return@action
                     }
 
                     queryClasses(YarnNamespace, args.query, args.version, args.channel?.str)
@@ -398,6 +399,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                     if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
                         message.respond("Patchwork support is currently disabled.")
+                        return@action
                     }
 
                     queryFields(YarnNamespace, args.query, args.version, args.channel?.str)
@@ -430,6 +432,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                     if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
                         message.respond("Patchwork support is currently disabled.")
+                        return@action
                     }
 
                     queryMethods(YarnNamespace, args.query, args.version, args.channel?.str)
