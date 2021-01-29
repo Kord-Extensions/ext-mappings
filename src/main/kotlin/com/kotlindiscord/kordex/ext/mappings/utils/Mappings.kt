@@ -4,10 +4,9 @@ import com.kotlindiscord.kordex.ext.mappings.utils.linkie.buildString
 import com.kotlindiscord.kordex.ext.mappings.utils.linkie.mapIfNotNullOrNotEquals
 import me.shedaniel.linkie.MappingsContainer
 import me.shedaniel.linkie.Namespace
+import me.shedaniel.linkie.getMappedDesc
 import me.shedaniel.linkie.optimumName
 import me.shedaniel.linkie.utils.*
-import me.shedaniel.linkie.utils.MappingsQuery.localiseFieldDesc
-import me.shedaniel.linkie.utils.MappingsQuery.mapObfDescToNamed
 
 private const val PAGE_SIZE = 3
 
@@ -75,6 +74,8 @@ fun fieldsToPages(
     fields.chunked(PAGE_SIZE).forEach { result ->
         val shortPage = result.joinToString("\n\n") {
             val (clazz, field) = it
+            val mappedDesc = field.getMappedDesc(mappings)
+
             var text = ""
 
             text += "**Field:** `${clazz.optimumName}::${field.optimumName}`\n"
@@ -86,11 +87,7 @@ fun fieldsToPages(
 
             if (namespace.supportsFieldDescription()) {
                 text += "\n"
-
-                text += "**Type:** `" +
-                        (field.mappedDesc ?: field.intermediaryDesc.mapFieldIntermediaryDescToNamed(mappings))
-                            .localiseFieldDesc() +
-                        "`"
+                text += "**Type:** `${mappedDesc.localiseFieldDesc()}`"
             }
 
             text
@@ -98,6 +95,8 @@ fun fieldsToPages(
 
         val longPage = result.joinToString("\n\n") {
             val (clazz, field) = it
+            val mappedDesc = field.getMappedDesc(mappings)
+
             var text = ""
 
             text += "**Field:** `${clazz.optimumName}::${field.optimumName}`\n"
@@ -109,11 +108,7 @@ fun fieldsToPages(
 
             if (namespace.supportsFieldDescription()) {
                 text += "\n"
-
-                text += "**Type:** `" +
-                        (field.mappedDesc ?: field.intermediaryDesc.mapFieldIntermediaryDescToNamed(mappings))
-                            .localiseFieldDesc() +
-                        "`"
+                text += "**Type:** `${mappedDesc.localiseFieldDesc()}`"
             }
 
             text += "\n"
@@ -125,7 +120,7 @@ fun fieldsToPages(
                         "L${clazz.optimumName};" +
                         field.optimumName +
                         ":" +
-                        (field.mappedDesc ?: field.intermediaryDesc.mapFieldIntermediaryDescToNamed(mappings)) +
+                        mappedDesc +
                         "`"
             }
 
@@ -136,9 +131,7 @@ fun fieldsToPages(
             } else if (namespace.supportsAW()) {
                 text += "\n"
 
-                text += "**Access Widener:** `accessible field ${clazz.optimumName} ${field.optimumName} " +
-                        (field.mappedDesc ?: field.intermediaryDesc.mapFieldIntermediaryDescToNamed(mappings)) +
-                        "`"
+                text += "**Access Widener:** `accessible field ${clazz.optimumName} ${field.optimumName} $mappedDesc`"
             }
 
             text.trimEnd('\n')
@@ -176,6 +169,8 @@ fun methodsToPages(
 
         val longPage = result.joinToString("\n\n") {
             val (clazz, method) = it
+            val mappedDesc = method.getMappedDesc(mappings)
+
             var text = ""
 
             text += "**Method:** `${clazz.optimumName}::${method.optimumName}`\n"
@@ -193,7 +188,7 @@ fun methodsToPages(
                 text += "**Mixin Target** `" +
                         "L${clazz.optimumName}" +
                         method.optimumName +
-                        (method.mappedDesc ?: method.intermediaryDesc.mapFieldIntermediaryDescToNamed(mappings)) +
+                        mappedDesc +
                         "`"
             }
 
@@ -202,14 +197,12 @@ fun methodsToPages(
 
                 text += "**Access Transformer** `public" + clazz.optimumName.replace('/', '.') +
                         method.intermediaryName +
-                        method.obfDesc.merged!!.mapObfDescToNamed(mappings) +
+                        mappedDesc +
                         " # ${method.optimumName}`"
             } else if (namespace.supportsAW()) {
                 text += "\n"
 
-                text += "**Access Widener** `accessible method ${clazz.optimumName} ${method.optimumName} " +
-                        (method.mappedDesc ?: method.intermediaryDesc.mapFieldIntermediaryDescToNamed(mappings)) +
-                        "`"
+                text += "**Access Widener** `accessible method ${clazz.optimumName} ${method.optimumName} $mappedDesc`"
             }
 
             text.trimEnd('\n')

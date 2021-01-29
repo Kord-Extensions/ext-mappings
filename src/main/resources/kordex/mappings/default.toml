@@ -21,6 +21,12 @@ banned = []
 
 [settings]
 # Which namespaces to allow lookups for - only "mcp", "mojang" and "yarn" are currently supported.
-namespaces = ["mcp", "mojang", "yarn"]
+namespaces = ["mcp", "mojang", "yarn", "legacy-yarn"]
 
 # How long to wait before closing mappings paginators (in seconds), defaults to 5 minutes
+# timeout = 300
+
+[yarn]
+# Extra yarn channels - official and snapshot are always enabled, but you can add or remove "PATCHWORK"
+# here to enable or disable it
+channels = ["PATCHWORK"]

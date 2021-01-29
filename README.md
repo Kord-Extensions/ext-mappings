@@ -11,8 +11,7 @@ If you're looking for older versions (and older tags), you can find them
 
 # Getting Started
 
-* **Stable repo:** `https://maven.kotlindiscord.com/repository/maven-snapshots/`
-* **Snapshot repo:** `https://maven.kotlindiscord.com/repository/maven-releases/`
+* **Maven repo:** `https://maven.kotlindiscord.com/repository/maven-public/`
 * **Maven coordinates:** `com.kotlindiscord.kordex.ext.mappings:ext-mappings:VERSION`
 
 At its simplest, you can add this extension directly to your bot with no further configuration. For example:
@@ -39,6 +38,7 @@ This extension provides a number of commands for use on Discord.
 * Commands for retrieving information about mappings namespaces: `mcp`, `mojang` and `yarn`
 * MCP-specific lookup commands: `mcpc`, `mcpf` and `mcpm`
 * Mojang-specific lookup commands: `mmc`, `mmf` and `mmm`
+* Legacy Yarn-specific lookup commands: `lyc`, `lyf` and `lym`
 * Yarn-specific lookup commands: `yc`, `yf` and `ym`
 
 # Configuration
@@ -70,9 +70,11 @@ following configuration keys are available:
   other guilds. This setting takes priority over `guilds.banned`.
 * `guilds.banned`: List of guilds mappings commands may **not** be run within. When set, mappings commands may not be
   run within the given guilds.
-* `settings.namespaces`: List of enabled namespaces. Currently, only `mcp`, `mojang` and `yarn` are supported, and
-  they will all be enabled by default.
+* `settings.namespaces`: List of enabled namespaces. Currently, only `mcp`, `mojang`, `legacy-yarn` and `yarn` are 
+  supported, and they will all be enabled by default.
 * `settings.timeout`: Time (in seconds) to wait before destroying mappings paginators, defaulting to 5 minutes (300 seconds). Be careful when setting this value to something high - a busy bot may end up running out of memory if paginators aren't destroyed quickly enough. This setting only accepts whole numbers.
+* `yarn.channels`: List of extra Yarn channels to enable. Currently, only `PATCHWORK` is supported, and it will be 
+  enabled by default.
 
 **Please note:** Mappings commands will always function when sent to the bot via a private message. However, only the
 configured namespaces will be available - the user will not be able to query disabled namespaces.

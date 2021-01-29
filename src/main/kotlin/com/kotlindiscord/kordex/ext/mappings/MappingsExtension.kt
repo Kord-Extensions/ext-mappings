@@ -8,6 +8,7 @@ import com.kotlindiscord.kord.extensions.pagination.Paginator
 import com.kotlindiscord.kord.extensions.pagination.pages.Page
 import com.kotlindiscord.kord.extensions.pagination.pages.Pages
 import com.kotlindiscord.kord.extensions.utils.respond
+import com.kotlindiscord.kordex.ext.mappings.arguments.LegacyYarnArguments
 import com.kotlindiscord.kordex.ext.mappings.arguments.MCPArguments
 import com.kotlindiscord.kordex.ext.mappings.arguments.MojangArguments
 import com.kotlindiscord.kordex.ext.mappings.arguments.YarnArguments
@@ -20,10 +21,7 @@ import com.kotlindiscord.kordex.ext.mappings.utils.fieldsToPages
 import com.kotlindiscord.kordex.ext.mappings.utils.methodsToPages
 import dev.kord.core.behavior.channel.withTyping
 import dev.kord.core.event.message.MessageCreateEvent
-import me.shedaniel.linkie.MappingsContainer
-import me.shedaniel.linkie.MappingsProvider
-import me.shedaniel.linkie.Namespace
-import me.shedaniel.linkie.Namespaces
+import me.shedaniel.linkie.*
 import me.shedaniel.linkie.namespaces.*
 import me.shedaniel.linkie.utils.MappingsQuery
 import me.shedaniel.linkie.utils.QueryContext
@@ -64,6 +62,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
             when (it) {
                 "mcp" -> namespaces.add(MCPNamespace)
                 "mojang" -> namespaces.add(MojangNamespace)
+                "legacy-yarn" -> namespaces.add(LegacyYarnNamespace)
                 "yarn" -> namespaces.add(YarnNamespace)
 
                 else -> throw UnsupportedNamespaceException(it)
@@ -75,15 +74,22 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
             return
         }
 
-        Namespaces.init(*namespaces.toTypedArray())
+        Namespaces.init(LinkieConfig.DEFAULT.copy(namespaces = namespaces))
 
         val mcpEnabled = enabledNamespaces.contains("mcp")
         val mojangEnabled = enabledNamespaces.contains("mojang")
+        val legacyYarnEnabled = enabledNamespaces.contains("legacy-yarn")
         val yarnEnabled = enabledNamespaces.contains("yarn")
+
+        val patchworkEnabled = config.yarnChannelEnabled(YarnChannels.PATCHWORK)
 
         val categoryCheck = allowedCategory(config.getAllowedCategories(), config.getBannedCategories())
         val channelCheck = allowedGuild(config.getAllowedChannels(), config.getBannedChannels())
         val guildCheck = allowedGuild(config.getAllowedGuilds(), config.getBannedGuilds())
+
+        val yarnChannels = YarnChannels.values().filter {
+            it != YarnChannels.PATCHWORK || patchworkEnabled
+        }.joinToString(", ") { "`${it.str}`" }
 
         // region: MCP mappings lookups
 
@@ -250,6 +256,87 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
         // endregion
 
+        // region: Legacy Yarn mappings lookups
+
+        if (legacyYarnEnabled) {
+            // Class
+            command {
+                name = "lyc"
+                aliases = arrayOf("lyarnc", "legacy-yarnc", "legacyyarnc", "legacyarnc")
+
+                description = "Look up Legacy Yarn mappings info for a class.\n\n" +
+
+                        "For more information or a list of versions for Legacy Yarn mappings, you can use the " +
+                        "`lyarn` command."
+
+                check(customChecks(name))
+                check(categoryCheck, channelCheck, guildCheck)  // Default checks
+                signature(::LegacyYarnArguments)
+
+                action {
+                    val args: LegacyYarnArguments
+
+                    message.channel.withTyping {
+                        args = parse(::LegacyYarnArguments)
+                    }
+
+                    queryClasses(LegacyYarnNamespace, args.query, args.version)
+                }
+            }
+
+            // Field
+            command {
+                name = "lyf"
+                aliases = arrayOf("lyarnf", "legacy-yarnf", "legacyyarnf", "legacyarnf")
+
+                description = "Look up Legacy Yarn mappings info for a field.\n\n" +
+
+                        "For more information or a list of versions for Yarn mappings, you can use the " +
+                        "`lyarn` command."
+
+                check(customChecks(name))
+                check(categoryCheck, channelCheck, guildCheck)  // Default checks
+                signature(::LegacyYarnArguments)
+
+                action {
+                    val args: LegacyYarnArguments
+
+                    message.channel.withTyping {
+                        args = parse(::LegacyYarnArguments)
+                    }
+
+                    queryFields(LegacyYarnNamespace, args.query, args.version)
+                }
+            }
+
+            // Method
+            command {
+                name = "lym"
+                aliases = arrayOf("lyarnm", "legacy-yarnm", "legacyyarnm", "legacyarnm")
+
+                description = "Look up Legacy Yarn mappings info for a method.\n\n" +
+
+                        "For more information or a list of versions for Legacy Yarn mappings, you can use the " +
+                        "`lyarn` command."
+
+                check(customChecks(name))
+                check(categoryCheck, channelCheck, guildCheck)  // Default checks
+                signature(::LegacyYarnArguments)
+
+                action {
+                    val args: LegacyYarnArguments
+
+                    message.channel.withTyping {
+                        args = parse(::LegacyYarnArguments)
+                    }
+
+                    queryMethods(LegacyYarnNamespace, args.query, args.version)
+                }
+            }
+        }
+
+        // endregion
+
         // region: Yarn mappings lookups
 
         if (yarnEnabled) {
@@ -260,7 +347,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 description = "Look up Yarn mappings info for a class.\n\n" +
 
-                        "**Channels:** " + YarnChannels.values().joinToString(", ") { "`${it.str}`" } +
+                        "**Channels:** $yarnChannels" +
                         "\n\n" +
 
                         "For more information or a list of versions for Yarn mappings, you can use the `yarn` " +
@@ -275,6 +362,10 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                     message.channel.withTyping {
                         args = parse(::YarnArguments)
+                    }
+
+                    if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
+                        message.respond("Patchwork support is currently disabled.")
                     }
 
                     queryClasses(YarnNamespace, args.query, args.version, args.channel?.str)
@@ -288,7 +379,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 description = "Look up Yarn mappings info for a field.\n\n" +
 
-                        "**Channels:** " + YarnChannels.values().joinToString(", ") { "`${it.str}`" } +
+                        "**Channels:** $yarnChannels" +
                         "\n\n" +
 
                         "For more information or a list of versions for Yarn mappings, you can use the `yarn` " +
@@ -305,6 +396,10 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
                         args = parse(::YarnArguments)
                     }
 
+                    if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
+                        message.respond("Patchwork support is currently disabled.")
+                    }
+
                     queryFields(YarnNamespace, args.query, args.version, args.channel?.str)
                 }
             }
@@ -316,7 +411,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 description = "Look up Yarn mappings info for a method.\n\n" +
 
-                        "**Channels:** " + YarnChannels.values().joinToString(", ") { "`${it.str}`" } +
+                        "**Channels:** $yarnChannels" +
                         "\n\n" +
 
                         "For more information or a list of versions for Yarn mappings, you can use the `yarn` " +
@@ -331,6 +426,10 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                     message.channel.withTyping {
                         args = parse(::YarnArguments)
+                    }
+
+                    if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
+                        message.respond("Patchwork support is currently disabled.")
                     }
 
                     queryMethods(YarnNamespace, args.query, args.version, args.channel?.str)
@@ -468,6 +567,69 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
             }
         }
 
+        if (legacyYarnEnabled) {
+            command {
+                name = "lyarn"
+                aliases = arrayOf("legacy-yarn", "legacyyarn", "legacyarn")
+
+                description = "Get information and a list of supported versions for Legacy Yarn mappings."
+
+                check(customChecks(name))
+                check(categoryCheck, channelCheck, guildCheck)  // Default checks
+
+                action {
+                    val defaultVersion = LegacyYarnNamespace.getDefaultVersion()
+                    val allVersions = LegacyYarnNamespace.getAllSortedVersions()
+
+                    val pages = allVersions.chunked(VERSION_CHUNK_SIZE).map {
+                        it.joinToString("\n") { version ->
+                            if (version == defaultVersion) {
+                                "**» $version** (Default)"
+                            } else {
+                                "**»** $version"
+                            }
+                        }
+                    }.toMutableList()
+
+                    pages.add(
+                        0,
+                        "Legacy Yarn mappings are available for queries across **${allVersions.size}** " +
+                                "versions.\n\n" +
+
+                                "**Default version:** $defaultVersion\n" +
+                                "**Commands:** `lyc`, `lyf`, `lym`\n\n" +
+
+                                "For a full list of supported Yarn versions, please view the rest of the pages."
+                    )
+
+                    val pagesObj = Pages()
+                    val pageTitle = "Mappings info: Legacy Yarn"
+
+                    pages.forEach {
+                        pagesObj.addPage(
+                            Page(
+                                description = it,
+                                title = pageTitle,
+                                footer = PAGE_FOOTER,
+                                footerIcon = PAGE_FOOTER_ICON
+                            )
+                        )
+                    }
+
+                    val paginator = Paginator(
+                        bot,
+                        targetMessage = message,
+                        pages = pagesObj,
+                        owner = message.author,
+                        keepEmbed = true,
+                        timeout = getTimeout()
+                    )
+
+                    paginator.send()
+                }
+            }
+        }
+
         if (yarnEnabled) {
             command {
                 name = "yarn"
@@ -478,9 +640,13 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
 
                 action {
+                    val defaultPatchworkVersion = if (patchworkEnabled) {
+                        YarnNamespace.getDefaultVersion { YarnChannels.PATCHWORK.str }
+                    } else {
+                        ""
+                    }
+
                     val defaultVersion = YarnNamespace.getDefaultVersion()
-                    val defaultLegacyVersion = YarnNamespace.getDefaultVersion { YarnChannels.LEGACY.str }
-                    val defaultPatchworkVersion = YarnNamespace.getDefaultVersion { YarnChannels.PATCHWORK.str }
                     val defaultSnapshotVersion = YarnNamespace.getDefaultVersion { YarnChannels.SNAPSHOT.str }
                     val allVersions = YarnNamespace.getAllSortedVersions()
 
@@ -488,9 +654,13 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
                         it.joinToString("\n") { version ->
                             when (version) {
                                 defaultVersion -> "**» $version** (Default)"
-                                defaultLegacyVersion -> "**» $version** (Default: Legacy)"
-                                defaultPatchworkVersion -> "**» $version** (Default: Patchwork)"
                                 defaultSnapshotVersion -> "**» $version** (Default: Snapshot)"
+
+                                defaultPatchworkVersion -> if (patchworkEnabled) {
+                                    "**» $version** (Default: Patchwork)"
+                                } else {
+                                    "**»** $version"
+                                }
 
                                 else -> "**»** $version"
                             }
@@ -504,14 +674,22 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
                                 "**Default version:** $defaultVersion\n" +
                                 "**Default snapshot version:** $defaultSnapshotVersion\n\n" +
 
-                                "**Default Legacy version:** $defaultLegacyVersion\n" +
-                                "**Default Patchwork version:** $defaultPatchworkVersion\n\n" +
+                                if (patchworkEnabled) {
+                                    "**Default Patchwork version:** $defaultPatchworkVersion\n\n"
+                                } else {
+                                    ""
+                                } +
 
-                                "**Channels:** " + YarnChannels.values().joinToString(", ") { "`${it.str}`" } +
-                                "\n" +
+                                "**Channels:** $yarnChannels\n"  +
                                 "**Commands:** `yc`, `yf`, `ym`\n\n" +
 
-                                "For a full list of supported Yarn versions, please view the rest of the pages."
+                                "For a full list of supported Yarn versions, please view the rest of the pages." +
+
+                                if (legacyYarnEnabled) {
+                                    " For Legacy Yarn mappings, please see the `lyarn` command."
+                                } else {
+                                    ""
+                                }
                     )
 
                     val pagesObj = Pages()

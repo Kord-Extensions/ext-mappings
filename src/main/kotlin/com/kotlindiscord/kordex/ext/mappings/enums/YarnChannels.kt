@@ -9,6 +9,5 @@ enum class YarnChannels(val str: String) {
     OFFICIAL("official"),
     SNAPSHOT("snapshot"),
 
-    LEGACY("legacy"),
     PATCHWORK("patchwork"),
 }
