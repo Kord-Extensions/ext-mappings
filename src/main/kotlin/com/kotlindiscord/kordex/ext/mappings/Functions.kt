@@ -15,7 +15,7 @@ public fun ExtensibleBot.extMappings() {
         extMappingsConfig(TomlMappingsConfig())
     }
 
-    this.addExtension(MappingsExtension::class)
+    this.addExtension(::MappingsExtension)
 }
 
 /**
