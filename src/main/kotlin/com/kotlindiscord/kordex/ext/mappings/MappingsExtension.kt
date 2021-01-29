@@ -355,13 +355,13 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::YarnArguments)
+                signature { YarnArguments(patchworkEnabled) }
 
                 action {
                     val args: YarnArguments
 
                     message.channel.withTyping {
-                        args = parse(::YarnArguments)
+                        args = parse { YarnArguments(patchworkEnabled) }
                     }
 
                     if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
@@ -387,13 +387,13 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::YarnArguments)
+                signature { YarnArguments(patchworkEnabled) }
 
                 action {
                     val args: YarnArguments
 
                     message.channel.withTyping {
-                        args = parse(::YarnArguments)
+                        args = parse { YarnArguments(patchworkEnabled) }
                     }
 
                     if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
@@ -419,13 +419,13 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::YarnArguments)
+                signature { YarnArguments(patchworkEnabled) }
 
                 action {
                     val args: YarnArguments
 
                     message.channel.withTyping {
-                        args = parse(::YarnArguments)
+                        args = parse { YarnArguments(patchworkEnabled) }
                     }
 
                     if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
