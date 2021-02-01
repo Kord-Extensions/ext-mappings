@@ -980,7 +980,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
                                 "versions.\n\n" +
 
                                 "**Default version:** $defaultVersion\n" +
-                                "**Commands:** `pc`, `pf`, `pm`\n\n" +
+                                "**Commands:** `yrc`, `yrf`, `yrm`\n\n" +
 
                                 "For a full list of supported Yarrn versions, please view the rest of the pages."
                     )

@@ -2,6 +2,7 @@ package com.kotlindiscord.kordex.ext.mappings.utils
 
 import com.kotlindiscord.kordex.ext.mappings.utils.linkie.buildString
 import com.kotlindiscord.kordex.ext.mappings.utils.linkie.mapIfNotNullOrNotEquals
+import com.kotlindiscord.kordex.ext.mappings.utils.linkie.stringPairs
 import me.shedaniel.linkie.MappingsContainer
 import me.shedaniel.linkie.Namespace
 import me.shedaniel.linkie.getMappedDesc
@@ -24,10 +25,33 @@ fun classesToPages(
 
             text += "**Class:** `${clazz.optimumName}`\n"
 
-            text += "**Name:** `" +
-                    clazz.obfName.buildString("` -> ") +
-                    "`${clazz.intermediaryName}`" +
-                    (clazz.mappedName.mapIfNotNullOrNotEquals(clazz.intermediaryName) { name -> " -> `$name`" } ?: "")
+            val (clientName, serverName) = clazz.obfName.stringPairs()
+
+            if (clientName != null) {
+                if (serverName == null) {
+                    text += "**Name:** `$clientName` -> "
+                } else {
+                    text += "**Client:** `$clientName` -> "
+                }
+
+                text += "`${clazz.intermediaryName}`" +
+                        (clazz.mappedName.mapIfNotNullOrNotEquals(clazz.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
+
+            if (serverName != null) {
+                if (clientName != null) {
+                    text += "\n"
+                }
+
+                text += "**Server:** `$serverName` -> "
+
+                text += "`${clazz.intermediaryName}`" +
+                        (clazz.mappedName.mapIfNotNullOrNotEquals(clazz.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
 
             text.trimEnd('\n')
         }
@@ -37,10 +61,33 @@ fun classesToPages(
 
             text += "**Class:** `${clazz.optimumName}`\n"
 
-            text += "**Name:** `" +
-                    clazz.obfName.buildString("` -> ") +
-                    "`${clazz.intermediaryName}`" +
-                    (clazz.mappedName.mapIfNotNullOrNotEquals(clazz.intermediaryName) { name -> " -> `$name`" } ?: "")
+            val (clientName, serverName) = clazz.obfName.stringPairs()
+
+            if (clientName != null) {
+                if (serverName == null) {
+                    text += "**Name:** `$clientName` -> "
+                } else {
+                    text += "**Client:** `$clientName` -> "
+                }
+
+                text += "`${clazz.intermediaryName}`" +
+                        (clazz.mappedName.mapIfNotNullOrNotEquals(clazz.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
+
+            if (serverName != null) {
+                if (clientName != null) {
+                    text += "\n"
+                }
+
+                text += "**Server:** `$serverName` -> "
+
+                text += "`${clazz.intermediaryName}`" +
+                        (clazz.mappedName.mapIfNotNullOrNotEquals(clazz.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
 
             text += "\n"
 
@@ -80,10 +127,33 @@ fun fieldsToPages(
 
             text += "**Field:** `${clazz.optimumName}::${field.optimumName}`\n"
 
-            text += "**Name:** `" +
-                    field.obfName.buildString("` -> ") +
-                    "`${field.intermediaryName}`" +
-                    (field.mappedName.mapIfNotNullOrNotEquals(field.intermediaryName) { name -> " -> `$name`" } ?: "")
+            val (clientName, serverName) = field.obfName.stringPairs()
+
+            if (clientName != null) {
+                if (serverName == null) {
+                    text += "**Name:** `$clientName` -> "
+                } else {
+                    text += "**Client:** `$clientName` -> "
+                }
+
+                text += "`${field.intermediaryName}`" +
+                        (field.mappedName.mapIfNotNullOrNotEquals(field.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
+
+            if (serverName != null) {
+                if (clientName != null) {
+                    text += "\n"
+                }
+
+                text += "**Server:** `$serverName` -> "
+
+                text += "`${field.intermediaryName}`" +
+                        (field.mappedName.mapIfNotNullOrNotEquals(field.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
 
             if (namespace.supportsFieldDescription()) {
                 text += "\n"
@@ -101,10 +171,33 @@ fun fieldsToPages(
 
             text += "**Field:** `${clazz.optimumName}::${field.optimumName}`\n"
 
-            text += "**Name:** `" +
-                    field.obfName.buildString("` -> ") +
-                    "`${field.intermediaryName}`" +
-                    (field.mappedName.mapIfNotNullOrNotEquals(field.intermediaryName) { name -> " -> `$name`" } ?: "")
+            val (clientName, serverName) = field.obfName.stringPairs()
+
+            if (clientName != null) {
+                if (serverName == null) {
+                    text += "**Name:** `$clientName` -> "
+                } else {
+                    text += "**Client:** `$clientName` -> "
+                }
+
+                text += "`${field.intermediaryName}`" +
+                        (field.mappedName.mapIfNotNullOrNotEquals(field.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
+
+            if (serverName != null) {
+                if (clientName != null) {
+                    text += "\n"
+                }
+
+                text += "**Server:** `$serverName` -> "
+
+                text += "`${field.intermediaryName}`" +
+                        (field.mappedName.mapIfNotNullOrNotEquals(field.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
 
             if (namespace.supportsFieldDescription()) {
                 text += "\n"
@@ -159,10 +252,33 @@ fun methodsToPages(
 
             text += "**Method:** `${clazz.optimumName}::${method.optimumName}`\n"
 
-            text += "**Name:** `" +
-                    method.obfName.buildString("` -> ") +
-                    "`" + method.intermediaryName + "`" +
-                    (method.mappedName.mapIfNotNullOrNotEquals(method.intermediaryName) { name -> " -> `$name`" } ?: "")
+            val (clientName, serverName) = clazz.obfName.stringPairs()
+
+            if (clientName != null) {
+                if (serverName == null) {
+                    text += "**Name:** `$clientName` -> "
+                } else {
+                    text += "**Client:** `$clientName` -> "
+                }
+
+                text += "`${method.intermediaryName}`" +
+                        (method.mappedName.mapIfNotNullOrNotEquals(method.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
+
+            if (serverName != null) {
+                if (clientName != null) {
+                    text += "\n"
+                }
+
+                text += "**Server:** `$serverName` -> "
+
+                text += "`${method.intermediaryName}`" +
+                        (method.mappedName.mapIfNotNullOrNotEquals(method.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
 
             text.trimEnd('\n')
         }
@@ -175,10 +291,33 @@ fun methodsToPages(
 
             text += "**Method:** `${clazz.optimumName}::${method.optimumName}`\n"
 
-            text += "**Name:** `" +
-                    method.obfName.buildString("` -> ") +
-                    "`" + method.intermediaryName + "`" +
-                    (method.mappedName.mapIfNotNullOrNotEquals(method.intermediaryName) { name -> " -> `$name`" } ?: "")
+            val (clientName, serverName) = clazz.obfName.stringPairs()
+
+            if (clientName != null) {
+                if (serverName == null) {
+                    text += "**Name:** `$clientName` -> "
+                } else {
+                    text += "**Client:** `$clientName` -> "
+                }
+
+                text += "`${method.intermediaryName}`" +
+                        (method.mappedName.mapIfNotNullOrNotEquals(method.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
+
+            if (serverName != null) {
+                if (clientName != null) {
+                    text += "\n"
+                }
+
+                text += "**Server:** `$serverName` -> "
+
+                text += "`${method.intermediaryName}`" +
+                        (method.mappedName.mapIfNotNullOrNotEquals(method.intermediaryName) { name ->
+                            " -> `$name`"
+                        } ?: "")
+            }
 
             text += "\n"
 
