@@ -4,11 +4,12 @@ import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kordex.ext.mappings.configuration.MappingsConfigAdapter
 import com.kotlindiscord.kordex.ext.mappings.configuration.TomlMappingsConfig
 import dev.kord.core.event.message.MessageCreateEvent
+import me.shedaniel.linkie.Namespace
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /** Set up the mappings extension and add it to the bot. **/
-public fun ExtensibleBot.extMappings() {
+fun ExtensibleBot.extMappings() {
     val config = koin.getOrNull<MappingsConfigAdapter>()
 
     if (config == null) {
@@ -24,7 +25,7 @@ public fun ExtensibleBot.extMappings() {
  *  Be sure to call this before [extMappings], or an exception will be thrown!
  */
 @Throws(IllegalStateException::class)
-public fun ExtensibleBot.extMappingsConfig(config: MappingsConfigAdapter) {
+fun ExtensibleBot.extMappingsConfig(config: MappingsConfigAdapter) {
     val configObj = koin.getOrNull<MappingsConfigAdapter>()
 
     if (configObj != null) {
@@ -41,7 +42,7 @@ public fun ExtensibleBot.extMappingsConfig(config: MappingsConfigAdapter) {
 }
 
 /**
- * Add a check that will be run against all commands in the mappings extension.
+ * Add a check that will be run against all commands in the mappings extension, checking their names.
  *
  * The function/lambda passed should take a [String] - the name of the command being checked - and return
  * a function taking a [MessageCreateEvent] and returning a [Boolean]. The returned function should return
@@ -52,5 +53,20 @@ public fun ExtensibleBot.extMappingsConfig(config: MappingsConfigAdapter) {
  * any actionable code in your checks - they should not interact with Discord aside from retrieving information from
  * it.
  */
-public fun ExtensibleBot.extMappingsCheck(check: suspend (String) -> (suspend (MessageCreateEvent) -> Boolean)) =
+fun ExtensibleBot.extMappingsCheck(check: suspend (String) -> (suspend (MessageCreateEvent) -> Boolean)) =
     MappingsExtension.addCheck(check)
+
+/**
+ * Add a check that will be run against all commands in the mappings extension, checking their namespaces.
+ *
+ * The function/lambda passed should take a [Namespace] - the namespace this command operates on - and return
+ * a function taking a [MessageCreateEvent] and returning a [Boolean]. The returned function should return
+ * `true` if the command should execute, and `false` if it shouldn't, using the namespace and event as
+ * context.
+ *
+ * Note that all custom checks will be run **BEFORE** checks that are specified in the configuration. Do not place
+ * any actionable code in your checks - they should not interact with Discord aside from retrieving information from
+ * it.
+ */
+fun ExtensibleBot.extMappingsNamespaceCheck(check: suspend (Namespace) -> (suspend (MessageCreateEvent) -> Boolean)) =
+    MappingsExtension.addNamespaceCheck(check)
