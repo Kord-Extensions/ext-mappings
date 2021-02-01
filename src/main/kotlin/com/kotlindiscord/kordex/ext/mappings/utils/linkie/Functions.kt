@@ -18,18 +18,7 @@ package com.kotlindiscord.kordex.ext.mappings.utils.linkie
 
 import me.shedaniel.linkie.Obf
 
-/** Format this obfuscated member as a string, optionally with a provided suffix. **/
-fun Obf.buildString(): String =
-    when {
-        isEmpty() -> ""
-        isMerged() -> merged!!
-
-        else -> buildString {
-            if (client != null) append("$client` (client) `")
-            if (server != null) append("$server` (server) `")
-        }.trim()
-    }
-
+/** Format this obfuscated member as a pair of strings, client to server. **/
 fun Obf.stringPairs(): Pair<String?, String?> = when {
     isEmpty() -> "" to null
     isMerged() -> merged!! to null
