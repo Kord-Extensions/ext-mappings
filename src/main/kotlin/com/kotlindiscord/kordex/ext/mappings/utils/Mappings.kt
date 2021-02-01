@@ -1,6 +1,5 @@
 package com.kotlindiscord.kordex.ext.mappings.utils
 
-import com.kotlindiscord.kordex.ext.mappings.utils.linkie.buildString
 import com.kotlindiscord.kordex.ext.mappings.utils.linkie.mapIfNotNullOrNotEquals
 import com.kotlindiscord.kordex.ext.mappings.utils.linkie.stringPairs
 import me.shedaniel.linkie.MappingsContainer
