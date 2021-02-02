@@ -251,7 +251,7 @@ fun methodsToPages(
 
             text += "**Method:** `${clazz.optimumName}::${method.optimumName}`\n"
 
-            val (clientName, serverName) = clazz.obfName.stringPairs()
+            val (clientName, serverName) = method.obfName.stringPairs()
 
             if (clientName != null) {
                 if (serverName == null) {
@@ -290,7 +290,7 @@ fun methodsToPages(
 
             text += "**Method:** `${clazz.optimumName}::${method.optimumName}`\n"
 
-            val (clientName, serverName) = clazz.obfName.stringPairs()
+            val (clientName, serverName) = method.obfName.stringPairs()
 
             if (clientName != null) {
                 if (serverName == null) {
