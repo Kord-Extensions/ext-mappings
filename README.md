@@ -13,6 +13,7 @@ If you're looking for older versions (and older tags), you can find them
 
 * **Maven repo:** `https://maven.kotlindiscord.com/repository/maven-public/`
 * **Maven coordinates:** `com.kotlindiscord.kordex.ext.mappings:ext-mappings:VERSION`
+* If Fabric dependencies fail to resolve, you may also need to add their Maven repo: `https://maven.fabricmc.net`
 
 At its simplest, you can add this extension directly to your bot with no further configuration. For example:
 
