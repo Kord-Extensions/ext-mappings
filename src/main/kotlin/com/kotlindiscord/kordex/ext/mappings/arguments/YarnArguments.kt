@@ -10,10 +10,11 @@ import me.shedaniel.linkie.namespaces.YarnNamespace
 /** Arguments for Yarn mappings lookup commands. **/
 @Suppress("UndocumentedPublicProperty")
 class YarnArguments(patchworkEnabled: Boolean) : Arguments() {
-    val query by string("query")
+    val query by string("query", "Name to query mappings for")
 
     val channel by optionalEnum<YarnChannels>(
         "channel",
+        "Mappings channel to use for this query",
 
         "official/snapshot" + if (patchworkEnabled) {
             "/patchwork"
@@ -22,5 +23,10 @@ class YarnArguments(patchworkEnabled: Boolean) : Arguments() {
         }
     )
 
-    val version by optionalMappingsVersion("version", true, YarnNamespace)
+    val version by optionalMappingsVersion(
+        "version",
+        "Minecraft version to use for this query",
+        true,
+        YarnNamespace
+    )
 }

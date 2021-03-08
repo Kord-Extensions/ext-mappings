@@ -8,6 +8,12 @@ import me.shedaniel.linkie.namespaces.MCPNamespace
 /** Arguments for MCP mappings lookup commands. **/
 @Suppress("UndocumentedPublicProperty")
 class MCPArguments : Arguments() {
-    val query by string("query")
-    val version by optionalMappingsVersion("version", true, MCPNamespace)
+    val query by string("query", "Name to query mappings for")
+
+    val version by optionalMappingsVersion(
+        "version",
+        "Minecraft version to use for this query",
+        true,
+        MCPNamespace
+    )
 }

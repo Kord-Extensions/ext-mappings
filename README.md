@@ -18,19 +18,24 @@ If you're looking for older versions (and older tags), you can find them
 At its simplest, you can add this extension directly to your bot with no further configuration. For example:
 
 ```kotlin
-val bot = ExtensibleBot(
-    token = System.getenv("TOKEN"),
-    prefix = "!"
-)
-
 suspend fun main() {
-    bot.extMappings()
+    val bot = ExtensibleBot(System.getenv("TOKEN")) {
+        commands {
+            defaultPrefix = "!"
+        }
+
+        extensions {
+            extMappings { }
+        }
+    }
+
     bot.start()
 }
 ```
 
 This will install the extension using its default configuration, which enables all mappings namespaces and does not
-restrict the commands in any manner.
+restrict the commands in any manner. Additional options are available in the `extMappings` builder for you to use -
+they're detailed below.
 
 # Usage
 
@@ -94,36 +99,41 @@ bot's needs.
 Kord Extensions provides a system of checks that can be applied to commands and other event handlers. Checks essentially
 allow you to prevent execution of a command depending on the context it was executed within.
 
-This extension allows you to register custom checks by calling the `ExtensibleBot#extMappingsCheck()` and `ExtensibleBot#extMappingsNamespaceCheck()` functions,
-as follows:
+This extension allows you to register custom checks by calling the `commandCheck()` and `namespaceCheck()` functions in
+the builder, as follows:
 
 ```kotlin
-val bot = ExtensibleBot(
-    token = System.getenv("TOKEN"),
-    prefix = "!"
-)
-
+val gdudeSnowflake = Snowflake("109040264529608704")
 val yarrnChannelId = Snowflake("...")
 
 suspend fun main() {
-    bot.extMappingsCheck { command ->
-        { event ->
-            if (command == "yarn") {  // Only limit usage of the `yarn` command
-                event.message.author?.id?.value != 109040264529608704L  // We don't want gdude using this
-            } else {
-                true
+    val bot = ExtensibleBot(System.getenv("TOKEN")) {
+        commands {
+            defaultPrefix = "!"
+        }
+
+        extensions {
+            extMappings {
+                commandCheck { command ->  // This is the command name
+                    { event -> 
+                        if (command == "yarn") { // Only limit usage of the `yarn` command
+                            event.message.author?.id != gdudeSnowflake  // We don't want gdude using this
+                        } else {
+                            true
+                        }
+                    }
+                }
+                
+                namespaceCheck { namespace ->  // This is the Linkie namespace in use
+                    { event ->
+                        // If it's not a Yarrn command, or it is a Yarrn command and we're in the Yarrn channel, it's OK
+                        namespace != YarrnNamespace || event.channel.id == yarrnChannelId
+                    }
+                }
             }
         }
     }
 
-    bot.extMappingsNamespaceCheck { namespace ->
-        { event ->
-            // If it's not a Yarrn command, or it is a Yarrn command and we're in the Yarrn channel, it's OK
-            namespace != YarrnNamespace || event.channel.id == yarrnChannelId
-        }
-    }
-
-    bot.extMappings()
     bot.start()
 }
 ```
@@ -131,15 +141,12 @@ suspend fun main() {
 You can also write this using functions instead of lambdas, of course.
 
 ```kotlin
-val bot = ExtensibleBot(
-    token = System.getenv("TOKEN"),
-    prefix = "!"
-)
+val gdudeSnowflake = Snowflake("109040264529608704")
 
-suspend fun mappingsCheck(command: String): suspend (MessageCreateEvent) -> Boolean {
+suspend fun mappingsCheck(namespace: Namespace): suspend (MessageCreateEvent) -> Boolean {
     suspend fun inner(event: MessageCreateEvent): Boolean =
-        if (command.startsWith("y")) {  // Only limit usage of the `yarn` commands
-            event.message.author?.id?.value != 109040264529608704L  // We don't want gdude using this
+        if (namespace == YarnNamespace) {  // Only limit usage of the `yarn` commands
+            event.message.author?.id != gdudeSnowflake  // We don't want gdude using this
         } else {
             true
         }
@@ -148,9 +155,18 @@ suspend fun mappingsCheck(command: String): suspend (MessageCreateEvent) -> Bool
 }
 
 suspend fun main() {
-    bot.extMappingsCheck(::mappingsCheck)
+    val bot = ExtensibleBot(System.getenv("TOKEN")) {
+        commands {
+            defaultPrefix = "!"
+        }
 
-    bot.extMappings()
+        extensions {
+            extMappings {
+              namespaceCheck(::mappingsCheck)
+            }
+        }
+    }
+
     bot.start()
 }
 ```
@@ -160,23 +176,27 @@ The approach you take is up to you!
 ## Replacing the Config Adapter
 
 If you need some other form of configuration - for example, from a database - you can implement the
-`MappingsConfigAdapater` interface in your own classes and pass an instance to `ExtensibleBot.extMappingsConfig()`
-before you start the bot to use it. While going into detail on each function is a little out of scope for this
-document, you can find more information in the following places:
+`MappingsConfigAdapater` interface in your own classes and store an instance of it in the `config` variable in the 
+builder. While going into detail on each function is a little out of scope for this document, you can find more 
+information in the following places:
 
 * [MappingsConfigAdapter interface](src/main/kotlin/com/kotlindiscord/kordex/ext/mappings/configuration/MappingsConfigAdapter.kt)
 * [TomlMappingsConfig class](src/main/kotlin/com/kotlindiscord/kordex/ext/mappings/configuration/TomlMappingsConfig.kt)
 
 ```kotlin
-val bot = ExtensibleBot(
-    token = System.getenv("TOKEN"),
-    prefix = "!"
-)
-
 suspend fun main() {
-    bot.extMappingsConfig(CustomMappingsConfig())
+    val bot = ExtensibleBot(System.getenv("TOKEN")) {
+        commands {
+            defaultPrefix = "!"
+        }
 
-    bot.extMappings()
+        extensions {
+            extMappings {
+                config = CustomMappingsConfig()
+            }
+        }
+    }
+
     bot.start()
 }
 ```

@@ -8,6 +8,12 @@ import me.shedaniel.linkie.namespaces.LegacyYarnNamespace
 /** Arguments for Legacy Yarn mappings lookup commands. **/
 @Suppress("UndocumentedPublicProperty")
 class LegacyYarnArguments : Arguments() {
-    val query by string("query")
-    val version by optionalMappingsVersion("version", true, LegacyYarnNamespace)
+    val query by string("query", "Name to query mappings for")
+
+    val version by optionalMappingsVersion(
+        "version",
+        "Minecraft version to use for this query",
+        true,
+        LegacyYarnNamespace
+    )
 }

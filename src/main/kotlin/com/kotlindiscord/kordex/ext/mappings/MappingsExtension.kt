@@ -1,15 +1,18 @@
+@file:Suppress("StringLiteralDuplication")
+
 package com.kotlindiscord.kordex.ext.mappings
 
 import com.kotlindiscord.kord.extensions.ExtensibleBot
-import com.kotlindiscord.kord.extensions.commands.CommandContext
-import com.kotlindiscord.kord.extensions.extensions.KoinExtension
+import com.kotlindiscord.kord.extensions.commands.MessageCommandContext
+import com.kotlindiscord.kord.extensions.commands.parser.Arguments
+import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.pagination.EXPAND_EMOJI
 import com.kotlindiscord.kord.extensions.pagination.Paginator
 import com.kotlindiscord.kord.extensions.pagination.pages.Page
 import com.kotlindiscord.kord.extensions.pagination.pages.Pages
 import com.kotlindiscord.kord.extensions.utils.respond
 import com.kotlindiscord.kordex.ext.mappings.arguments.*
-import com.kotlindiscord.kordex.ext.mappings.configuration.MappingsConfigAdapter
+import com.kotlindiscord.kordex.ext.mappings.builders.ExtMappingsBuilder
 import com.kotlindiscord.kordex.ext.mappings.enums.Channels
 import com.kotlindiscord.kordex.ext.mappings.enums.YarnChannels
 import com.kotlindiscord.kordex.ext.mappings.exceptions.UnsupportedNamespaceException
@@ -23,46 +26,25 @@ import me.shedaniel.linkie.namespaces.*
 import me.shedaniel.linkie.utils.MappingsQuery
 import me.shedaniel.linkie.utils.QueryContext
 import mu.KotlinLogging
-import org.koin.core.component.inject
 
 private const val VERSION_CHUNK_SIZE = 10
 private const val PAGE_FOOTER = "Powered by Linkie"
+
 private const val PAGE_FOOTER_ICON =
     "https://cdn.discordapp.com/attachments/789139884307775580/790887070334976020/linkie_arrow.png"
+
 private const val TIMEOUT_MULTIPLIER = 1000L  // To transform it into seconds
 
 /**
  * Extension providing Minecraft mappings lookups on Discord.
  */
-class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
-    private val config: MappingsConfigAdapter by inject()
-
-    companion object {
-        private var checks: MutableList<suspend (String) -> (suspend (MessageCreateEvent) -> Boolean)> =
-            mutableListOf()
-
-        private var namespaceChecks: MutableList<suspend (Namespace) -> (suspend (MessageCreateEvent) -> Boolean)> =
-            mutableListOf()
-
-        /**
-         * Internal function used to add a check to this extension.
-         */
-        fun addCheck(check: suspend (String) -> (suspend (MessageCreateEvent) -> Boolean)) =
-            checks.add(check)
-
-        /**
-         * Internal function used to add a check to this extension.
-         */
-        fun addNamespaceCheck(check: suspend (Namespace) -> (suspend (MessageCreateEvent) -> Boolean)) =
-            namespaceChecks.add(check)
-    }
-
+class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
     private val logger = KotlinLogging.logger { }
     override val name: String = "mappings"
 
     override suspend fun setup() {
         val namespaces = mutableListOf<Namespace>()
-        val enabledNamespaces = config.getEnabledNamespaces()
+        val enabledNamespaces = builder.config.getEnabledNamespaces()
 
         enabledNamespaces.forEach {
             when (it) {
@@ -91,11 +73,11 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
         val yarnEnabled = enabledNamespaces.contains("yarn")
         val yarrnEnabled = enabledNamespaces.contains("yarrn")
 
-        val patchworkEnabled = config.yarnChannelEnabled(YarnChannels.PATCHWORK)
+        val patchworkEnabled = builder.config.yarnChannelEnabled(YarnChannels.PATCHWORK)
 
-        val categoryCheck = allowedCategory(config.getAllowedCategories(), config.getBannedCategories())
-        val channelCheck = allowedGuild(config.getAllowedChannels(), config.getBannedChannels())
-        val guildCheck = allowedGuild(config.getAllowedGuilds(), config.getBannedGuilds())
+        val categoryCheck = allowedCategory(builder.config.getAllowedCategories(), builder.config.getBannedCategories())
+        val channelCheck = allowedGuild(builder.config.getAllowedChannels(), builder.config.getBannedChannels())
+        val guildCheck = allowedGuild(builder.config.getAllowedGuilds(), builder.config.getBannedGuilds())
 
         val yarnChannels = YarnChannels.values().filter {
             it != YarnChannels.PATCHWORK || patchworkEnabled
@@ -105,7 +87,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
         if (legacyYarnEnabled) {
             // Class
-            command {
+            command(::LegacyYarnArguments) {
                 name = "lyc"
                 aliases = arrayOf("lyarnc", "legacy-yarnc", "legacyyarnc", "legacyarnc")
 
@@ -116,21 +98,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, LegacyYarnNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::LegacyYarnArguments)
 
                 action {
-                    val args: LegacyYarnArguments
-
-                    message.channel.withTyping {
-                        args = parse(::LegacyYarnArguments)
-                    }
-
-                    queryClasses(LegacyYarnNamespace, args.query, args.version)
+                    queryClasses(LegacyYarnNamespace, arguments.query, arguments.version)
                 }
             }
 
             // Field
-            command {
+            command(::LegacyYarnArguments) {
                 name = "lyf"
                 aliases = arrayOf("lyarnf", "legacy-yarnf", "legacyyarnf", "legacyarnf")
 
@@ -141,21 +116,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, LegacyYarnNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::LegacyYarnArguments)
 
                 action {
-                    val args: LegacyYarnArguments
-
-                    message.channel.withTyping {
-                        args = parse(::LegacyYarnArguments)
-                    }
-
-                    queryFields(LegacyYarnNamespace, args.query, args.version)
+                    queryFields(LegacyYarnNamespace, arguments.query, arguments.version)
                 }
             }
 
             // Method
-            command {
+            command(::LegacyYarnArguments) {
                 name = "lym"
                 aliases = arrayOf("lyarnm", "legacy-yarnm", "legacyyarnm", "legacyarnm")
 
@@ -166,16 +134,9 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, LegacyYarnNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::LegacyYarnArguments)
 
                 action {
-                    val args: LegacyYarnArguments
-
-                    message.channel.withTyping {
-                        args = parse(::LegacyYarnArguments)
-                    }
-
-                    queryMethods(LegacyYarnNamespace, args.query, args.version)
+                    queryMethods(LegacyYarnNamespace, arguments.query, arguments.version)
                 }
             }
         }
@@ -186,7 +147,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
         if (mcpEnabled) {
             // Class
-            command {
+            command(::MCPArguments) {
                 name = "mcpc"
 
                 description = "Look up MCP mappings info for a class.\n\n" +
@@ -195,21 +156,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, MCPNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::MCPArguments)
 
                 action {
-                    val args: MCPArguments
-
-                    message.channel.withTyping {
-                        args = parse(::MCPArguments)
-                    }
-
-                    queryClasses(MCPNamespace, args.query, args.version)
+                    queryClasses(MCPNamespace, arguments.query, arguments.version)
                 }
             }
 
             // Field
-            command {
+            command(::MCPArguments) {
                 name = "mcpf"
 
                 description = "Look up MCP mappings info for a field.\n\n" +
@@ -218,21 +172,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, MCPNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::MCPArguments)
 
                 action {
-                    val args: MCPArguments
-
-                    message.channel.withTyping {
-                        args = parse(::MCPArguments)
-                    }
-
-                    queryFields(MCPNamespace, args.query, args.version)
+                    queryFields(MCPNamespace, arguments.query, arguments.version)
                 }
             }
 
             // Method
-            command {
+            command(::MCPArguments) {
                 name = "mcpm"
 
                 description = "Look up MCP mappings info for a method.\n\n" +
@@ -241,16 +188,9 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, MCPNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::MCPArguments)
 
                 action {
-                    val args: MCPArguments
-
-                    message.channel.withTyping {
-                        args = parse(::MCPArguments)
-                    }
-
-                    queryMethods(MCPNamespace, args.query, args.version)
+                    queryMethods(MCPNamespace, arguments.query, arguments.version)
                 }
             }
         }
@@ -261,7 +201,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
         if (mojangEnabled) {
             // Class
-            command {
+            command(::MojangArguments) {
                 name = "mmc"
                 aliases = arrayOf("mojc", "mojmapc")
 
@@ -275,21 +215,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, MojangNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::MojangArguments)
 
                 action {
-                    val args: MojangArguments
-
-                    message.channel.withTyping {
-                        args = parse(::MojangArguments)
-                    }
-
-                    queryClasses(MojangNamespace, args.query, args.version, args.channel?.str)
+                    queryClasses(MojangNamespace, arguments.query, arguments.version, arguments.channel?.str)
                 }
             }
 
             // Field
-            command {
+            command(::MojangArguments) {
                 name = "mmf"
                 aliases = arrayOf("mojf", "mojmapf")
 
@@ -303,21 +236,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, MojangNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::MojangArguments)
 
                 action {
-                    val args: MojangArguments
-
-                    message.channel.withTyping {
-                        args = parse(::MojangArguments)
-                    }
-
-                    queryFields(MojangNamespace, args.query, args.version, args.channel?.str)
+                    queryFields(MojangNamespace, arguments.query, arguments.version, arguments.channel?.str)
                 }
             }
 
             // Method
-            command {
+            command(::MojangArguments) {
                 name = "mmm"
                 aliases = arrayOf("mojm", "mojmapm")
 
@@ -331,16 +257,9 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, MojangNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::MojangArguments)
 
                 action {
-                    val args: MojangArguments
-
-                    message.channel.withTyping {
-                        args = parse(::MojangArguments)
-                    }
-
-                    queryMethods(MojangNamespace, args.query, args.version, args.channel?.str)
+                    queryMethods(MojangNamespace, arguments.query, arguments.version, arguments.channel?.str)
                 }
             }
         }
@@ -351,7 +270,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
         if (plasmaEnabled) {
             // Class
-            command {
+            command(::PlasmaArguments) {
                 name = "pc"
 
                 description = "Look up Plasma mappings info for a class.\n\n" +
@@ -361,21 +280,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, PlasmaNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::PlasmaArguments)
 
                 action {
-                    val args: PlasmaArguments
-
-                    message.channel.withTyping {
-                        args = parse(::PlasmaArguments)
-                    }
-
-                    queryClasses(PlasmaNamespace, args.query, args.version)
+                    queryClasses(PlasmaNamespace, arguments.query, arguments.version)
                 }
             }
 
             // Field
-            command {
+            command(::PlasmaArguments) {
                 name = "pf"
 
                 description = "Look up Plasma mappings info for a field.\n\n" +
@@ -385,21 +297,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, PlasmaNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::PlasmaArguments)
 
                 action {
-                    val args: PlasmaArguments
-
-                    message.channel.withTyping {
-                        args = parse(::PlasmaArguments)
-                    }
-
-                    queryFields(PlasmaNamespace, args.query, args.version)
+                    queryFields(PlasmaNamespace, arguments.query, arguments.version)
                 }
             }
 
             // Method
-            command {
+            command(::PlasmaArguments) {
                 name = "pm"
 
                 description = "Look up Plasma mappings info for a method.\n\n" +
@@ -409,16 +314,9 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, PlasmaNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::PlasmaArguments)
 
                 action {
-                    val args: PlasmaArguments
-
-                    message.channel.withTyping {
-                        args = parse(::PlasmaArguments)
-                    }
-
-                    queryMethods(PlasmaNamespace, args.query, args.version)
+                    queryMethods(PlasmaNamespace, arguments.query, arguments.version)
                 }
             }
         }
@@ -429,7 +327,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
         if (yarnEnabled) {
             // Class
-            command {
+            command({ YarnArguments(patchworkEnabled) }) {
                 name = "yc"
                 aliases = arrayOf("yarnc")
 
@@ -443,26 +341,19 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, YarnNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature { YarnArguments(patchworkEnabled) }
 
                 action {
-                    val args: YarnArguments
-
-                    message.channel.withTyping {
-                        args = parse { YarnArguments(patchworkEnabled) }
-                    }
-
-                    if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
+                    if (!patchworkEnabled && arguments.channel == YarnChannels.PATCHWORK) {
                         message.respond("Patchwork support is currently disabled.")
                         return@action
                     }
 
-                    queryClasses(YarnNamespace, args.query, args.version, args.channel?.str)
+                    queryClasses(YarnNamespace, arguments.query, arguments.version, arguments.channel?.str)
                 }
             }
 
             // Field
-            command {
+            command({ YarnArguments(patchworkEnabled) }) {
                 name = "yf"
                 aliases = arrayOf("yarnf")
 
@@ -476,26 +367,19 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, YarnNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature { YarnArguments(patchworkEnabled) }
 
                 action {
-                    val args: YarnArguments
-
-                    message.channel.withTyping {
-                        args = parse { YarnArguments(patchworkEnabled) }
-                    }
-
-                    if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
+                    if (!patchworkEnabled && arguments.channel == YarnChannels.PATCHWORK) {
                         message.respond("Patchwork support is currently disabled.")
                         return@action
                     }
 
-                    queryFields(YarnNamespace, args.query, args.version, args.channel?.str)
+                    queryFields(YarnNamespace, arguments.query, arguments.version, arguments.channel?.str)
                 }
             }
 
             // Method
-            command {
+            command({ YarnArguments(patchworkEnabled) }) {
                 name = "ym"
                 aliases = arrayOf("yarnm")
 
@@ -509,21 +393,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, YarnNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature { YarnArguments(patchworkEnabled) }
 
                 action {
-                    val args: YarnArguments
-
-                    message.channel.withTyping {
-                        args = parse { YarnArguments(patchworkEnabled) }
-                    }
-
-                    if (!patchworkEnabled && args.channel == YarnChannels.PATCHWORK) {
+                    if (!patchworkEnabled && arguments.channel == YarnChannels.PATCHWORK) {
                         message.respond("Patchwork support is currently disabled.")
                         return@action
                     }
 
-                    queryMethods(YarnNamespace, args.query, args.version, args.channel?.str)
+                    queryMethods(YarnNamespace, arguments.query, arguments.version, arguments.channel?.str)
                 }
             }
         }
@@ -534,7 +411,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
         if (yarrnEnabled) {
             // Class
-            command {
+            command(::YarrnArguments) {
                 name = "yrc"
 
                 description = "Look up Yarrn mappings info for a class.\n\n" +
@@ -544,21 +421,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, YarrnNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::YarrnArguments)
 
                 action {
-                    val args: YarrnArguments
-
-                    message.channel.withTyping {
-                        args = parse(::YarrnArguments)
-                    }
-
-                    queryClasses(YarrnNamespace, args.query, args.version)
+                    queryClasses(YarrnNamespace, arguments.query, arguments.version)
                 }
             }
 
             // Field
-            command {
+            command(::YarrnArguments) {
                 name = "yrf"
 
                 description = "Look up Yarrn mappings info for a field.\n\n" +
@@ -568,21 +438,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, YarrnNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::YarrnArguments)
 
                 action {
-                    val args: YarrnArguments
-
-                    message.channel.withTyping {
-                        args = parse(::YarrnArguments)
-                    }
-
-                    queryFields(YarrnNamespace, args.query, args.version)
+                    queryFields(YarrnNamespace, arguments.query, arguments.version)
                 }
             }
 
             // Method
-            command {
+            command(::YarrnArguments) {
                 name = "yrm"
 
                 description = "Look up Yarrn mappings info for a method.\n\n" +
@@ -592,16 +455,9 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
 
                 check(customChecks(name, YarrnNamespace))
                 check(categoryCheck, channelCheck, guildCheck)  // Default checks
-                signature(::YarrnArguments)
 
                 action {
-                    val args: YarrnArguments
-
-                    message.channel.withTyping {
-                        args = parse(::YarrnArguments)
-                    }
-
-                    queryMethods(YarrnNamespace, args.query, args.version)
+                    queryMethods(YarrnNamespace, arguments.query, arguments.version)
                 }
             }
         }
@@ -1018,7 +874,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
         logger.info { "Mappings extension set up - namespaces: " + enabledNamespaces.joinToString(", ") }
     }
 
-    private suspend fun CommandContext.queryClasses(
+    private suspend fun MessageCommandContext<out Arguments>.queryClasses(
         namespace: Namespace,
         givenQuery: String,
         version: MappingsContainer?,
@@ -1120,7 +976,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
         paginator.send()
     }
 
-    private suspend fun CommandContext.queryFields(
+    private suspend fun MessageCommandContext<out Arguments>.queryFields(
         namespace: Namespace,
         givenQuery: String,
         version: MappingsContainer?,
@@ -1222,7 +1078,7 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
         paginator.send()
     }
 
-    private suspend fun CommandContext.queryMethods(
+    private suspend fun MessageCommandContext<out Arguments>.queryMethods(
         namespace: Namespace,
         givenQuery: String,
         version: MappingsContainer?,
@@ -1324,11 +1180,11 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
         paginator.send()
     }
 
-    private suspend fun getTimeout() = config.getTimeout() * TIMEOUT_MULTIPLIER
+    private suspend fun getTimeout() = builder.config.getTimeout() * TIMEOUT_MULTIPLIER
 
     private suspend fun customChecks(command: String, namespace: Namespace): suspend (MessageCreateEvent) -> Boolean {
-        val allChecks = checks.map { it.invoke(command) }
-        val allNamespaceChecks = namespaceChecks.map { it.invoke(namespace) }
+        val allChecks = builder.commandChecks.map { it.invoke(command) }
+        val allNamespaceChecks = builder.namespaceChecks.map { it.invoke(namespace) }
 
         suspend fun inner(event: MessageCreateEvent): Boolean =
             allChecks.all { it.invoke(event) }.and(
@@ -1336,5 +1192,14 @@ class MappingsExtension(bot: ExtensibleBot) : KoinExtension(bot) {
             )
 
         return ::inner
+    }
+
+    companion object {
+        private lateinit var builder: ExtMappingsBuilder
+
+        /** @suppress: Internal function used to pass the configured builder into the extension. **/
+        fun configure(builder: ExtMappingsBuilder) {
+            this.builder = builder
+        }
     }
 }
