@@ -10,7 +10,18 @@ import me.shedaniel.linkie.namespaces.MojangNamespace
 /** Arguments for Mojang mappings lookup commands. **/
 @Suppress("UndocumentedPublicProperty")
 class MojangArguments : Arguments() {
-    val query by string("query")
-    val channel by optionalEnum<Channels>("channel", "official/snapshot")
-    val version by optionalMappingsVersion("version", true, MojangNamespace)
+    val query by string("query", "Name to query mappings for")
+
+    val channel by optionalEnum<Channels>(
+        "channel",
+        "Mappings channel to use for this query",
+        "official/snapshot"
+    )
+
+    val version by optionalMappingsVersion(
+        "version",
+        "Minecraft version to use for this query",
+        true,
+        MojangNamespace
+    )
 }

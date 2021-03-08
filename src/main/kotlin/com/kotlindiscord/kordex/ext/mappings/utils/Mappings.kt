@@ -1,3 +1,5 @@
+@file:Suppress("StringLiteralDuplication")
+
 package com.kotlindiscord.kordex.ext.mappings.utils
 
 import com.kotlindiscord.kordex.ext.mappings.utils.linkie.mapIfNotNullOrNotEquals
