@@ -51,16 +51,16 @@ This extension provides a number of commands for use on Discord.
 
 # Configuration
 
-* **Env var prefix:** `KORDX_MAPPINGS`
-* **System property prefix:** `kordx.mappings`
+* **Env var prefix:** `KORDEX_MAPPINGS`
+* **System property prefix:** `kordex.mappings`
 
 This extension makes use of the Konf library for configuration. Included in the JAR is a default configuration file,
 `kordex/mappings/default.toml`. You may configure the extension in one of the following ways:
 
 * **TOML file as a resource:** `kordex/mappings/config.toml`
 * **TOML file on the filesystem:** `config/ext/mappings.toml`
-* **Environment variables,** prefixed with `KORDX_MAPPINGS_`, upper-casing keys and replacing `.` with `_` in key names
-* **System properties,** prefixed with `kord.mappings.`
+* **Environment variables,** prefixed with `KORDEX_MAPPINGS_`, upper-casing keys and replacing `.` with `_` in key names
+* **System properties,** prefixed with `kordex.mappings.`
 
 For an example, feel free to [read the included default.toml](src/main/resources/kordex/mappings/default.toml). The
 following configuration keys are available:

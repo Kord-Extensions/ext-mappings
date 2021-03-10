@@ -36,8 +36,8 @@ class TomlMappingsConfig : MappingsConfigAdapter {
         }
 
         config = config
-            .from.prefixed("KORDX_MAPPINGS").env()
-            .from.prefixed("kordx.mappings").systemProperties()
+            .from.prefixed("KORDEX_MAPPINGS").env()
+            .from.prefixed("kordex.mappings").systemProperties()
     }
 
     override suspend fun getAllowedCategories(): List<Snowflake> = config[CategoriesSpec.allowed]
