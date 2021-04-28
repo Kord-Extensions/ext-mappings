@@ -15,7 +15,7 @@ import me.shedaniel.linkie.Namespace
  */
 class MappingsVersionConverter(
     private val namespaceGetter: suspend () -> Namespace,
-    override var validator: (suspend (MappingsContainer) -> Unit)? = null
+    override var validator: (suspend Argument<*>.(MappingsContainer) -> Unit)? = null
 ) : SingleConverter<MappingsContainer>() {
     override val signatureTypeString: String = "version"
     override val showTypeInSignature: Boolean = false

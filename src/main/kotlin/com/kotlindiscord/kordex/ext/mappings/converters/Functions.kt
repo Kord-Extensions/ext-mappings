@@ -3,6 +3,7 @@
 package com.kotlindiscord.kordex.ext.mappings.converters
 
 import com.kotlindiscord.kord.extensions.commands.converters.ConverterToOptional
+import com.kotlindiscord.kord.extensions.commands.parser.Argument
 import com.kotlindiscord.kord.extensions.commands.parser.Arguments
 import me.shedaniel.linkie.MappingsContainer
 import me.shedaniel.linkie.Namespace
@@ -13,7 +14,7 @@ fun Arguments.optionalMappingsVersion(
     description: String,
     outputError: Boolean = false,
     namespace: Namespace,
-    validator: (suspend (MappingsContainer?) -> Unit)? = null
+    validator: (suspend Argument<*>.(MappingsContainer?) -> Unit)? = null
 ) =
     arg(
         displayName,
