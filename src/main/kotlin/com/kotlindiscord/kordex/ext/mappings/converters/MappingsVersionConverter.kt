@@ -1,7 +1,6 @@
 package com.kotlindiscord.kordex.ext.mappings.converters
 
 import com.kotlindiscord.kord.extensions.CommandException
-import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.commands.CommandContext
 import com.kotlindiscord.kord.extensions.commands.converters.SingleConverter
 import com.kotlindiscord.kord.extensions.commands.parser.Argument
@@ -20,7 +19,7 @@ class MappingsVersionConverter(
     override val signatureTypeString: String = "version"
     override val showTypeInSignature: Boolean = false
 
-    override suspend fun parse(arg: String, context: CommandContext, bot: ExtensibleBot): Boolean {
+    override suspend fun parse(arg: String, context: CommandContext): Boolean {
         val namespace = namespaceGetter.invoke()
 
         if (arg in namespace.getAllVersions()) {

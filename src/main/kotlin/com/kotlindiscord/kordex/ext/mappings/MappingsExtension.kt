@@ -2,7 +2,6 @@
 
 package com.kotlindiscord.kordex.ext.mappings
 
-import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.commands.MessageCommandContext
 import com.kotlindiscord.kord.extensions.commands.parser.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
@@ -38,7 +37,7 @@ private const val TIMEOUT_MULTIPLIER = 1000L  // To transform it into seconds
 /**
  * Extension providing Minecraft mappings lookups on Discord.
  */
-class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
+class MappingsExtension : Extension() {
     private val logger = KotlinLogging.logger { }
     override val name: String = "mappings"
 
@@ -516,7 +515,6 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
                     }
 
                     val paginator = Paginator(
-                        bot,
                         targetMessage = message,
                         pages = pagesObj,
                         owner = message.author,
@@ -577,7 +575,6 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
                     }
 
                     val paginator = Paginator(
-                        bot,
                         targetMessage = message,
                         pages = pagesObj,
                         owner = message.author,
@@ -642,7 +639,6 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
                     }
 
                     val paginator = Paginator(
-                        bot,
                         targetMessage = message,
                         pages = pagesObj,
                         owner = message.author,
@@ -704,7 +700,6 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
                     }
 
                     val paginator = Paginator(
-                        bot,
                         targetMessage = message,
                         pages = pagesObj,
                         owner = message.author,
@@ -794,7 +789,6 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
                     }
 
                     val paginator = Paginator(
-                        bot,
                         targetMessage = message,
                         pages = pagesObj,
                         owner = message.author,
@@ -856,7 +850,6 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
                     }
 
                     val paginator = Paginator(
-                        bot,
                         targetMessage = message,
                         pages = pagesObj,
                         owner = message.author,
@@ -965,7 +958,6 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
         }
 
         val paginator = Paginator(
-            bot,
             targetMessage = message,
             pages = pagesObj,
             owner = message.author,
@@ -1067,7 +1059,6 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
         }
 
         val paginator = Paginator(
-            bot,
             targetMessage = message,
             pages = pagesObj,
             owner = message.author,
@@ -1169,7 +1160,6 @@ class MappingsExtension(bot: ExtensibleBot) : Extension(bot) {
         }
 
         val paginator = Paginator(
-            bot,
             targetMessage = message,
             pages = pagesObj,
             owner = message.author,
